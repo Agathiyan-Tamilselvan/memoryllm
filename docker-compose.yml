@@ -1,0 +1,29 @@
+version: '3.8'
+services:
+  backend:
+    build: ./backend
+    ports:
+      - "8000:8000"
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - DATABASE_URL=${DATABASE_URL}
+    depends_on:
+      - db
+    volumes:
+      - ./backend:/app
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+
+  db:
+    image: sqlite3:latest  # Note: SQLite doesn't need a full DB service; this is for persistence
+    volumes:
+      - db_data:/var/lib/sqlite
+    command: ["sqlite3", "/var/lib/sqlite/memorypal.db", "<", "/app/infra/schema.sql"]
+
+volumes:
+  db_data:
